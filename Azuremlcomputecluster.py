@@ -340,7 +340,8 @@ class AzureMLComputeCluster(Cluster):
         logger.info(msg)
         print(f"{pre_post} {msg} {pre_post}".center(length, filler))
 
-    async def __check_if_scheduler_ip_reachable(self):
+    #async
+    def __check_if_scheduler_ip_reachable(self):
         """
         Private method to determine if running in the cloud within the same VNET
         and the scheduler node is reachable
@@ -409,7 +410,8 @@ class AzureMLComputeCluster(Cluster):
 
         ### SET FLAGS
   
-        self.scheduler_ip_port = run.get_metrics()["scheduler"]
+        ####---self.scheduler_ip_port = run.get_metrics()["scheduler"]
+        self.scheduler_ip_port = run.get_metrics()["jupyter"]
         self.worker_params["--scheduler_ip_port"] = self.scheduler_ip_port
         self.__print_message(f'Scheduler: {run.get_metrics()["scheduler"]}')
         self.run = run
@@ -417,16 +419,16 @@ class AzureMLComputeCluster(Cluster):
         logger.info(f'Scheduler: {run.get_metrics()["scheduler"]}')
 
         ### CHECK IF ON THE SAME VNET
-        ####---while self.same_vnet is None:
-        ####---    await self.sync(self.__check_if_scheduler_ip_reachable)
-        ####---    time.sleep(1)
+        while self.same_vnet is None:
+            self.__check_if_scheduler_ip_reachable()
+            time.sleep(1)
 
         ### REQUIRED BY dask.distributed.deploy.cluster.Cluster
         ####---_scheduler = self.__prepare_rpc_connection_to_headnode()
         ####---self.scheduler_comm = rpc(_scheduler)
         ####---await self.sync(self.__setup_port_forwarding)
         ####---await self.sync(super()._start)
-        self.same_vnet = True
+        
         self.__setup_port_forwarding()
         self.__update_links()    
         

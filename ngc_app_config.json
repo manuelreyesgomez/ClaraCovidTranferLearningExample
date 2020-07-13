@@ -1,7 +1,7 @@
 {
     "azureml_user":
     {
-        "subscription_id": "ab221ca4-f098-422d-ab2f-5073b385XXXX",
+        "subscription_id": "ab221ca4-f098-422d-ab2f-5073b3851e68",
         "resource_group": "TutorialTestA",
         "workspace_name": "TutorialTestA1"
     },
@@ -32,6 +32,20 @@
                 "filename":"clarasdk.zip",
                 "localdirectory":"clara",
                 "computedirectory":"clara",
+                "zipped":true
+            },
+            {
+                "url":"https://api.ngc.nvidia.com/v2/models/nvidia/med/clara_train_covid19_ct_lung_seg/versions/1/zip",
+                "filename":"clara_train_covid19_ct_lung_seg_1.zip",
+                "localdirectory":"clara/experiments/covid19_ct_lung_seg-v2",
+                "computedirectory":"clara/experiments/covid19_ct_lung_seg-v2",
+                "zipped":true
+            },
+            {
+                "url":"https://api.ngc.nvidia.com/v2/models/nvidia/med/clara_train_covid19_3d_ct_classification/versions/1/zip",
+                "filename":"clara_train_covid19_3d_ct_classification_1.zip",
+                "localdirectory":"clara/experiments/covid19_3d_ct_classification-v2",
+                "computedirectory":"clara/experiments/ovid19_3d_ct_classification-v2",
                 "zipped":true
             }
         ]
