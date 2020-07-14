@@ -124,7 +124,8 @@ def main():
         , asynchronous=False
     )
 
-    display(HTML("""<a href="{link}">Jupyter Link</a>""".format(link=amlcluster.jupyter_link)))
+    print(amlcluster.jupyter_link)
+    amlcluster.jupyter_link
     print('Exiting script')
 
 

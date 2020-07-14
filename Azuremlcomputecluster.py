@@ -387,7 +387,7 @@ class AzureMLComputeCluster(Cluster):
         ####---self.scheduler_comm = rpc(_scheduler)
         ####---await self.sync(self.__setup_port_forwarding)
         ####---await self.sync(super()._start)
-        
+        _scheduler = self.__prepare_rpc_connection_to_headnode()
         self.__setup_port_forwarding()
         self.__update_links()    
         
