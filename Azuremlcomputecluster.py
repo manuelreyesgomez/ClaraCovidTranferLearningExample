@@ -8,13 +8,12 @@ import time, os, socket, subprocess, logging
 import pathlib
 import threading
 
-import dask
 from distributed.deploy.cluster import Cluster
 from distributed.core import rpc
 from distributed.utils import (
     LoopRunner,
     log_errors,
-    ignoring,
+    #ignoring,
     format_bytes,
 )
 from tornado.ioloop import PeriodicCallback
@@ -257,46 +256,6 @@ class AzureMLComputeCluster(Cluster):
             self.sync(self.__create_cluster)
 
     async def __get_defaults(self):
-        self.config = dask.config.get("cloudprovider.azure", {})
-
-        if self.experiment_name is None:
-            self.experiment_name = self.config.get("experiment_name")
-
-        if self.initial_node_count is None:
-            self.initial_node_count = self.config.get("initial_node_count")
-
-        if self.jupyter is None:
-            self.jupyter = self.config.get("jupyter")
-
-        if self.jupyter_port is None:
-            self.jupyter_port = self.config.get("jupyter_port")
-
-        if self.dashboard_port is None:
-            self.dashboard_port = self.config.get("dashboard_port")
-
-        if self.scheduler_port is None:
-            self.scheduler_port = self.config.get("scheduler_port")
-
-        if self.scheduler_idle_timeout is None:
-            self.scheduler_idle_timeout = self.config.get("scheduler_idle_timeout")
-
-        if self.worker_death_timeout is None:
-            self.worker_death_timeout = self.config.get("worker_death_timeout")
-
-        if self.additional_ports is None:
-            self.additional_ports = self.config.get("additional_ports")
-
-        if self.admin_username is None:
-            self.admin_username = self.config.get("admin_username")
-
-        if self.admin_ssh_key is None:
-            self.admin_ssh_key = self.config.get("admin_ssh_key")
-
-        if self.datastores is None:
-            self.datastores = self.config.get("datastores")
-
-        if self.telemetry_opt_out is None:
-            self.telemetry_opt_out = self.config.get("telemetry_opt_out")
 
         ### PARAMETERS TO START THE CLUSTER
         self.scheduler_params = {}
