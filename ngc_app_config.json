@@ -45,7 +45,7 @@
                 "url":"https://api.ngc.nvidia.com/v2/models/nvidia/med/clara_train_covid19_3d_ct_classification/versions/1/zip",
                 "filename":"clara_train_covid19_3d_ct_classification_1.zip",
                 "localdirectory":"clara/experiments/covid19_3d_ct_classification-v2",
-                "computedirectory":"clara/experiments/ovid19_3d_ct_classification-v2",
+                "computedirectory":"clara/experiments/covid19_3d_ct_classification-v2",
                 "zipped":true
             }
         ]
