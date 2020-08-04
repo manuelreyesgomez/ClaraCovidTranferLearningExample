@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import os
-from PIL import Image
+#from PIL import Image
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 from io import StringIO
 import json
+import zipfile
 
 def transform(scanDirectory, newDirectory,verbose=False):
     imageCount = 0
@@ -22,6 +23,33 @@ def transform(scanDirectory, newDirectory,verbose=False):
             image.save(newPath, 'PNG', icc_profile='')
             imageCount = imageCount + 1    
     print (imageCount, ' images transformed.')
+    return
+
+def transformCTScanMetadataToJSON(inputFile,negativeFile,outputFile,testingFile,kaggledata_dir,testing=[],validation_size=0.20):
+    columnsToKeep = ['ct_scan', 'lung_mask']
+    data = pd.read_csv(inputFile)
+    data=data[columnsToKeep]
+    tmp_dir = '../input/covid19-ct-scans/'
+    data.ct_scan = data.ct_scan.apply(lambda x: x.replace(tmp_dir,''))
+    data.lung_mask = data.lung_mask.apply(lambda x: x.replace(tmp_dir,kaggledata_dir))
+    data['label'] = 1
+    negative_data = pd.read_csv(negativeFile)
+    negative_data.columns = ['ct_scan']
+    negative_data.ct_scan = negative_data.ct_scan.apply(lambda x:"ct_scans/{0}".format(x)) 
+    negative_data["lung_mask"] = negative_data.ct_scan.apply(lambda x:"{0}lung_mask/{1}".format(kaggledata_dir,"{0}.nii.gz".format(x.split('-')[2].split('_')[0]))) 
+    negative_data['label'] = 0
+    data = data.append(negative_data, ignore_index=True)
+    dataForTesting = data[data.ct_scan.isin(testing)]
+    data = data[~data.ct_scan.isin(testing)]
+    partitionTypes = ['training','validation']
+    data['partition'] = partitionTypes[0]
+    dataForTesting['partition'] = partitionTypes[1]
+    num_examples = data.shape[0]
+    indxs_train, indxs_test, labels_train, labels_test = train_test_split(np.array(range(0,num_examples)), np.zeros(num_examples) ,test_size = validation_size)
+    data['partition'].iloc[indxs_test] = partitionTypes[1]
+    labelstr = '{\n"label_format": [\n2\n],\n'
+    createCTScanFile(data,partitionTypes,labelstr,True,outputFile)
+    createCTScanFile(dataForTesting,['validation'],labelstr,False,testingFile)
     return
 
 def transformMetadataToJSON(inputFile,outputFile,testingFile,testing=[],validation_size=0.20,countThreshold=2):
@@ -54,6 +82,31 @@ def transformMetadataToJSON(inputFile,outputFile,testingFile,testing=[],validati
     createFile(dataForTesting,['validation'],labelstr,False,testingFile)
     labels = ["Pneumocystis","SARS","COVID-19","ARDS","Streptococcus"]
     return labels
+
+def createCTScanFile(data,partitionTypes,labelstr,labelflag,filename):
+    stream = StringIO()
+    stream.write(labelstr)
+    for partition in partitionTypes:
+        stream.write('"'+partition+ '":[')
+        tempdata = data[data.partition==partition]
+        for index, row in tempdata.iterrows():
+            if labelflag:
+                stream.write('{"image":"'+ row['ct_scan'] +'",\n')
+                stream.write('"label_image":"'+ row['lung_mask'] +'",\n')
+                stream.write('"label":['+  str(row['label']) + ']},\n')
+            else:
+                stream.write('{"image":"'+ row['ct_scan'] +'",\n')
+                stream.write('"label_image":"'+ row['lung_mask'] +'"},\n')
+        stream.write('],\n')
+    
+    stream.write('}')
+    strng = str(stream.getvalue())
+    strng = strng.replace('.jpeg','.png').replace('.jpg','.png').replace('.JPG','.png').replace('.JPEG','.png').replace(',\n]','\n]').replace('],\n}',']\n}')
+    with open(filename, 'w') as out_file:
+        out_file.write(strng)
+    stream.close()
+    return
+
 
 def createFile(data,partitionTypes,labelstr,labelflag,filename):
     stream = StringIO()
@@ -98,6 +151,21 @@ def adaptScript(inputFile,outputFile,oldValues,newValues):
     
     with open(outputFile, 'w') as out_file:
         out_file.write(strg)
+    return
+
+def adaptCTScanJSONTrainConfigFile(inputFile,outputFile,output_batch_size = 12,numepochs=300,learningrate=5e-6):
+
+    with open(inputFile) as f:
+        data = json.load(f)
+   
+    sections = ['train','validate']
+    data['epochs'] = numepochs
+    data['learning_rate'] = learningrate
+    data[sections[0]]['image_pipeline']['args']['output_batch_size']=output_batch_size
+
+    with open(outputFile, 'w') as json_file:
+        json.dump(data, json_file, indent = 2)
+    
     return
 
 def adaptJSONTrainConfigFile(inputFile,outputFile,labels,numepochs,learningrate,subtrahend,divisor,image_pipeline):
@@ -201,3 +269,18 @@ def processPredictions(filename,labels):
     for index, row in data.iterrows():
         results[row["image"]]= "\n".join(["{} = {}".format(x,y) for x,y in zip(labels,row[labels])])
     return results
+
+def processCTScanPredictions(filename,labels):
+    names = ['image']
+    names.extend(labels)
+    data = pd.read_csv(filename,names=names)
+    data.image = data.image.apply(lambda x: x.split('/')[3])
+    results = {}
+    for index, row in data.iterrows():
+        results[row["image"]]= '; '.join(["{} = {}".format(x,y) for x,y in zip(labels,row[labels])])
+    return results
+
+def unzippedfile(folder,file):
+    with zipfile.ZipFile(file, 'r') as zip_ref:
+        zip_ref.extractall(folder)
+    return
