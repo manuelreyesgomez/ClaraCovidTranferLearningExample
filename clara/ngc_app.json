@@ -1,0 +1,31 @@
+{
+    "base_dockerfile":"nvcr.io/nvidia/clara-train-sdk:v3.0",
+    "additional_content": {
+        "download_content": true,
+        "unzip_content": true,
+        "upload_content": true,
+        "list":[
+            {
+                "url":"https://api.ngc.nvidia.com/v2/models/nvidia/med/clara_train_covid19_3d_ct_classification/versions/1/zip",
+                "filename":"clara_train_covid19_3d_ct_classification_1.zip",
+                "localdirectory":"clara/experiments/covid19_3d_ct_classification-v2",
+                "computedirectory":"clara/experiments/covid19_3d_ct_classification-v2",
+                "zipped":true
+            },
+            {
+                "url":"https://api.ngc.nvidia.com/v2/resources/nvidia/med/getting_started/versions/1/zip",
+                "filename":"clarasdk.zip",
+                "localdirectory":"clara",
+                "computedirectory":"clara",
+                "zipped":true
+            },
+            {
+                "url":"https://api.ngc.nvidia.com/v2/resources/nvidia/azuremlclarablogquicklaunch/versions/example/zip",
+                "filename":"claractscanexample.zip",
+                "localdirectory":"clara/claractscanexample",
+                "computedirectory":"clara",
+                "zipped":true
+            }
+        ]
+    }
+}

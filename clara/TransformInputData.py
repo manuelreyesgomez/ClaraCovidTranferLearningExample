@@ -270,15 +270,17 @@ def processPredictions(filename,labels):
         results[row["image"]]= "\n".join(["{} = {}".format(x,y) for x,y in zip(labels,row[labels])])
     return results
 
-def processCTScanPredictions(filename,labels):
+def processCTScanPredictions(filename,labels,target_label):
     names = ['image']
     names.extend(labels)
     data = pd.read_csv(filename,names=names)
     data.image = data.image.apply(lambda x: x.split('/')[3])
     results = {}
+    pred_labels = {}
     for index, row in data.iterrows():
+        pred_labels[row["image"]] = {target_label:np.round(row[target_label])}
         results[row["image"]]= '; '.join(["{} = {}".format(x,y) for x,y in zip(labels,row[labels])])
-    return results
+    return results,pred_labels
 
 def unzippedfile(folder,file):
     with zipfile.ZipFile(file, 'r') as zip_ref:
