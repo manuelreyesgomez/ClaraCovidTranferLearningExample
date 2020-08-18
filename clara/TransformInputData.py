@@ -45,7 +45,7 @@ def transformCTScanMetadataToJSON(inputFile,negativeFile,outputFile,testingFile,
     data['partition'] = partitionTypes[0]
     dataForTesting['partition'] = partitionTypes[1]
     num_examples = data.shape[0]
-    indxs_train, indxs_test, labels_train, labels_test = train_test_split(np.array(range(0,num_examples)), np.zeros(num_examples) ,test_size = validation_size)
+    indxs_train, indxs_test, labels_train, labels_test = train_test_split(np.array(range(0,num_examples)), np.zeros(num_examples) ,test_size =validation_size,random_state=1)
     data['partition'].iloc[indxs_test] = partitionTypes[1]
     labelstr = '{\n"label_format": [\n2\n],\n'
     createCTScanFile(data,partitionTypes,labelstr,True,outputFile)
